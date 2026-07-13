@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/usr/bin/env ash
 
-DIRECTORY="$PWD/allure-report"
+DIRECTORY="$PWD/reports"
 
 echo "Publishing test results to S3"
 
 if [ -n "$RESULTS_OUTPUT_S3_PATH" ]; then
    if [ -d "$DIRECTORY" ]; then
-      aws s3 cp --quiet "$DIRECTORY" "$RESULTS_OUTPUT_S3_PATH" --recursive
+      aws --endpoint "$S3_ENDPOINT" s3 cp "$DIRECTORY" "$RESULTS_OUTPUT_S3_PATH" --recursive
       echo "Test results published to $RESULTS_OUTPUT_S3_PATH"
    else
       echo "$DIRECTORY is not found"
