@@ -1,96 +1,77 @@
-trade-gateway-journey-tests
+# trade-gateway-journey-tests
 
-The template to create a service that runs WDIO tests against an environment.
+Journey tests for Trade Gateway services.
 
-- [Local](#local)
-  - [Requirements](#requirements)
-    - [Node.js](#nodejs)
-  - [Setup](#setup)
-  - [Running local tests](#running-local-tests)
-  - [Debugging local tests](#debugging-local-tests)
-- [Production](#production)
-  - [Debugging tests](#debugging-tests)
-- [Licence](#licence)
-  - [About the licence](#about-the-licence)
+- [trade-gateway](https://github.com/DEFRA/trade-gateway)
+- [trade-gateway-publisher](https://github.com/DEFRA/trade-gateway-publisher)
 
-## Local Development
+## Prerequisites
 
-### Requirements
+### Dependencies
 
-#### Node.js
+Install the following:
+- [.NET 10 (SDK)](https://dotnet.microsoft.com/)
+- [Docker](https://docs.docker.com/engine/) (optional)
 
-Please install [Node.js](http://nodejs.org/) `>= v20` and [npm](https://nodejs.org/) `>= v9`. You will find it
-easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
+### Services
 
-To use the correct version of Node.js for this application, via nvm:
+See [trade-gateway-local-environment](https://github.com/DEFRA/trade-gateway-local-environment) for instructions.
 
-```bash
-nvm use
-```
+## Tests
 
-### Setup
+### Local
 
-Install application dependencies:
+Build as follows:
 
 ```bash
-npm install
+dotnet build
 ```
 
-### Running local tests
-
-Start application you are testing on the url specified in `baseUrl` [wdio.local.conf.js](wdio.local.conf.js)
+Run as follows:
 
 ```bash
-npm run test:local
+dotnet test
 ```
 
-### Debugging local tests
+### Docker
+
+Build as follows:
 
 ```bash
-npm run test:local:debug
+docker build . -t trade-gateway-journey-tests
 ```
 
-## Production
+Run as follows:
 
-### Running the tests
+```bash
+docker run -it --rm --net=host \
+  -e S3_ENDPOINT='http://localhost:4566' \
+  -e RESULTS_OUTPUT_S3_PATH='s3://reports' \
+  -e AWS_ACCESS_KEY_ID='test' \
+  -e AWS_DEFAULT_REGION='eu-west-2' \
+  -e AWS_SECRET_ACCESS_KEY='test' \
+  -e AWS_SECRET_KEY='test' \
+  -e AWS_REGION='eu-west-2' \
+  trade-gateway-journey-tests
+```
 
-Tests are run from the CDP-Portal under the Test Suites section. Before any changes can be run, a new docker image must be built, this will happen automatically when a pull request is merged into the `main` branch.
-You can check the progress of the build under the actions section of this repository. Builds typically take around 1-2 minutes.
+The test report is available from the `reports` S3 bucket. See [s3://reports](http://localhost:4566/reports/index.html) in your browser.
 
-The results of the test run are made available in the portal.
+## Linting and formatting
 
-## Requirements of CDP Environment Tests
+[CSharpier](https://csharpier.com/) is used for linting and formatting.
 
-1. Your service builds as a docker container using the `.github/workflows/publish.yml`
-   The workflow tags the docker images allowing the CDP Portal to identify how the container should be run on the platform.
-   It also ensures its published to the correct docker repository.
+Install .NET local tools as follows:
 
-2. The Dockerfile's entrypoint script should return exit code of 0 if the test suite passes or 1/>0 if it fails
+```bash
+dotnet tool restore
+```
 
-3. Test reports should be published to S3 using the script in `./bin/publish-tests.sh`
+Format all project files as follows:
 
-## Running on GitHub
-
-Alternatively you can run the test suite as a GitHub workflow.
-Test runs on GitHub are not able to connect to the CDP Test environments. Instead, they run the tests agains a version of the services running in docker.
-A docker compose `compose.yml` is included as a starting point, which includes the databases (mongodb, redis) and infrastructure (localstack) pre-setup.
-
-Steps:
-
-1. Edit the compose.yml to include your services.
-2. Modify the scripts in docker/scripts to pre-populate the database, if required and create any localstack resources.
-3. Test the setup locally with `docker compose up` and `npm run test:github`
-4. Set up the workflow trigger in `.github/workflows/journey-tests`.
-
-By default, the provided workflow will run when triggered manually from GitHub or when triggered by another workflow.
-
-If you want to use the repository exclusively for running docker composed based test suites consider displaying the publish.yml workflow.
-
-## BrowserStack
-
-Two wdio configuration files are provided to help run the tests using BrowserStack in both a GitHub workflow (`wdio.github.browserstack.conf.js`) and from the CDP Portal (`wdio.browserstack.conf.js`).
-They can be run from npm using the `npm run test:browserstack` (for running via portal) and `npm run test:github:browserstack` (from GitHib runner).
-See the CDP Documentation for more details.
+```bash
+dotnet csharpier format .
+```
 
 ## Licence
 

@@ -11,26 +11,23 @@ on:
       - synchronize
       - ready_for_review
 
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
 jobs:
-  cdp-workflows:
+  pr-validator:
     name: Run Pull Request Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - name: Test code and Create Test Coverage Reports
-        uses: actions/setup-node@v4
+      - name: Check linting and formatting
+        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
         with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - run: npm run format:check
-      - run: npm run lint
-
-# Uncomment this to run the tests in your test suite
-#  tests:
-#    name: Run Journey Tests
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: DEFRA/cdp-node-journey-test-suite-template/run-journey-tests@main
+          dotnet-version: |
+            10.0
+      - run: dotnet tool restore
+      - run: dotnet csharpier check .

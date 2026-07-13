@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="tests/Journey/TradeGateway.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Solution items/">
+    <File Path="README.md" />
+  </Folder>
+</Solution>
