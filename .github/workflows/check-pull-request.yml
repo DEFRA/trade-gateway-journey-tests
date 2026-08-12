@@ -21,11 +21,6 @@ jobs:
   pr-validator:
     name: Run Pull Request Checks
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      id-token: write      
-      packages: read
-      contents: read
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
