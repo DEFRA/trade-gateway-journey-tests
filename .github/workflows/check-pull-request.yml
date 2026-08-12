@@ -14,7 +14,8 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  id-token: write
+  id-token: write    
+  packages: read
 
 jobs:
   pr-validator:
