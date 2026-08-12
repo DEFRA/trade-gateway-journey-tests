@@ -5,7 +5,6 @@ using Trade.Gateway.Api.Client.Extensions;
 
 namespace TradeGateway.Tests;
 
-
 public sealed class TracesGatewayFactory : IDisposable
 {
     private readonly ServiceProvider _serviceProvider;
@@ -21,11 +20,14 @@ public sealed class TracesGatewayFactory : IDisposable
         Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", "test");
         Environment.SetEnvironmentVariable("USE_FLOCI", "true");
 
-
-        var configuration = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: false).AddEnvironmentVariables().Build();
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddEnvironmentVariables()
+            .Build();
         var services = new ServiceCollection();
-        services.AddTracesGatewayApiClients(configuration)
+        services
+            .AddTracesGatewayApiClients(configuration)
             .WithSts()
             .WithAcceptLanguage()
             .WithLogging()
@@ -33,15 +35,16 @@ public sealed class TracesGatewayFactory : IDisposable
         _serviceProvider = services.BuildServiceProvider();
     }
 
-    public T GetRequiredService<T>() where T : notnull => _serviceProvider.GetRequiredService<T>();
+    public T GetRequiredService<T>()
+        where T : notnull => _serviceProvider.GetRequiredService<T>();
+
     public ITracesGatewayClient TracesGatewayClient => GetRequiredService<ITracesGatewayClient>();
     public IReferenceDataClient ReferenceDataClient => GetRequiredService<IReferenceDataClient>();
     public ITracesGatewayChedClient TracesGatewayChedClient => GetRequiredService<ITracesGatewayChedClient>();
     public ITracesGatewayIntraClient TracesGatewayIntraClient => GetRequiredService<ITracesGatewayIntraClient>();
+
     public void Dispose() => _serviceProvider.Dispose();
 }
 
 [CollectionDefinition("Traces Gateway")]
-public sealed class TracesGatewayCollection : ICollectionFixture<TracesGatewayFactory>
-{
-}
+public sealed class TracesGatewayCollection : ICollectionFixture<TracesGatewayFactory> { }
