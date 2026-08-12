@@ -16,7 +16,7 @@ public class IntraTests(TracesGatewayFactory factory)
         );
 
         // assert that response is good
-        Assert.True(response.IsSuccessStatusCode);
+        Assert.True(response.IsSuccessStatusCode, $"Response was not successful: {response.Error}");
         await Verify(response.Content);
     }
 }
