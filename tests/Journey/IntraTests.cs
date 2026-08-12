@@ -8,6 +8,7 @@ public class IntraTests(TracesGatewayFactory factory)
     public async Task GetIntraValid()
     {
         //setup place intra into system
+        // The Stub already has a response for this, so we don't need to do anything here. In a real test, you would set up the expected data in the system before making the call.
 
 
         // act make intra get call for what was placed into system

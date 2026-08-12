@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Trade.Gateway.Api.Client.Clients;
-using Trade.Gateway.Api.Client.DelegatingHandlers;
 using Trade.Gateway.Api.Client.Extensions;
-using WireMock.Server;
 
 namespace TradeGateway.Tests;
 
@@ -22,7 +20,6 @@ public sealed class TracesGatewayFactory : IDisposable
         Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", "test");
         Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", "test");
         Environment.SetEnvironmentVariable("USE_FLOCI", "true");
-        Environment.SetEnvironmentVariable("USE_FLOCI", "true");
 
 
         var configuration = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory)
@@ -30,7 +27,6 @@ public sealed class TracesGatewayFactory : IDisposable
         var services = new ServiceCollection();
         services.AddTracesGatewayApiClients(configuration)
             .WithSts()
-            .WithIssuerOverride("http://localhost:3001/local")
             .WithAcceptLanguage()
             .WithLogging()
             .WithTracing(_ => Guid.NewGuid().ToString("N"));
