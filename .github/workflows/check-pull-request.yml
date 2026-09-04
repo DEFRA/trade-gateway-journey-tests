@@ -55,7 +55,14 @@ jobs:
         run: docker compose up --wait --wait-timeout 300 --quiet-pull
 
       - name: Run journey tests
-        run: dotnet test
+        run: dotnet test --results-directory reports --report-html --report-html-filename index.html
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: ./reports
 
       - name: Capture Docker Compose logs
         if: always()

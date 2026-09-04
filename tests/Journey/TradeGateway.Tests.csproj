@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -12,11 +13,10 @@
     <PackageReference Include="Defra.Trade.Gateway.Api.Client" Version="0.1.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.10" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.10" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageReference Include="Microsoft.Testing.Extensions.HtmlReport" Version="2.3.3" />
     <PackageReference Include="Scriban.Signed" Version="7.2.6" />
     <PackageReference Include="Verify.XunitV3" Version="31.16.3" />
-    <PackageReference Include="xunit.v3" Version="3.2.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
     <PackageReference Include="WireMock.Net" Version="2.6.0" />
   </ItemGroup>
 
@@ -29,4 +29,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="CleanTestReports" AfterTargets="Clean">
+    <RemoveDir Directories="$(MSBuildProjectDirectory)/../../reports" />
+  </Target>
 </Project>
