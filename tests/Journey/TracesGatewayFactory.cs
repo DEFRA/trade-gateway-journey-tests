@@ -12,7 +12,7 @@ public sealed class TracesGatewayFactory : IDisposable
     public TracesGatewayFactory()
     {
         Environment.SetEnvironmentVariable("AWS_ENDPOINT_URL", "http://localhost:4566");
-        Environment.SetEnvironmentVariable("AWS_ENDPOINT_URL_STS", "http://localhost:3001/local/sts");
+        Environment.SetEnvironmentVariable("AWS_ENDPOINT_URL_STS", "http://localhost:8080/local/sts");
         Environment.SetEnvironmentVariable("AWS_EMF_ENVIRONMENT", "Local");
         Environment.SetEnvironmentVariable("AWS_REGION", "eu-west-2");
         Environment.SetEnvironmentVariable("AWS_DEFAULT_REGION", "eu-west-2");
