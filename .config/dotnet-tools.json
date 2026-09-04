@@ -8,13 +8,6 @@
         "csharpier"
       ],
       "rollForward": false
-    },
-    "trxlog2html": {
-      "version": "1.0.4",
-      "commands": [
-        "trxlog2html"
-      ],
-      "rollForward": false
     }
   }
 }

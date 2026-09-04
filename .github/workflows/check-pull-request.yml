@@ -1,4 +1,4 @@
-name: Check Pull Request
+name: Check pull request
 
 on:
   pull_request:
@@ -13,21 +13,70 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
   id-token: write
+  packages: read
+  pull-requests: write
 
 jobs:
   pr-validator:
-    name: Run Pull Request Checks
+    name: Run pull request checks
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
-      - name: Checkout code
+      - name: Checkout current repository code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - name: Check linting and formatting
+      - name: Set up .NET
         uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
         with:
           dotnet-version: |
             10.0
-      - run: dotnet tool restore
-      - run: dotnet csharpier check .
+
+      - name: Update NuGet.config
+        run: |
+          dotnet nuget remove source defra
+          dotnet nuget add source --username USERNAME --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name defra "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --configfile NuGet.config
+
+      - name: Restore .NET tools
+        run: dotnet tool restore
+
+      - name: Check formatting
+        run: dotnet csharpier check .
+
+      - name: Log in to Docker Hub
+        uses: DEFRA/cdp-build-action/docker-login@main
+
+      - name: Checkout trade-gateway-local-environment
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          repository: DEFRA/trade-gateway-local-environment
+          ref: main
+          path: trade-gateway-local-environment
+
+      - name: Start trade-gateway-local-environment
+        working-directory: trade-gateway-local-environment
+        run: docker compose up --wait --wait-timeout 300 --quiet-pull
+
+      - name: Run journey tests
+        run: dotnet test --results-directory reports --report-html --report-html-filename index.html
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: ./reports
+
+      - name: Capture Docker Compose logs
+        if: always()
+        working-directory: trade-gateway-local-environment
+        run: docker compose logs > logs.txt
+
+      - name: Upload Docker Compose logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-compose-logs
+          path: trade-gateway-local-environment/logs.txt
