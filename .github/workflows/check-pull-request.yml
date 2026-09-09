@@ -25,7 +25,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Checkout current repository code
+      - name: Checkout current repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Set up .NET
@@ -37,7 +37,7 @@ jobs:
       - name: Update NuGet.config
         run: |
           dotnet nuget remove source defra
-          dotnet nuget add source --username USERNAME --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name defra "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --configfile NuGet.config
+          dotnet nuget add source --username USERNAME --password "$GITHUB_TOKEN" --store-password-in-clear-text --name defra "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --configfile NuGet.config
 
       - name: Restore .NET tools
         run: dotnet tool restore
