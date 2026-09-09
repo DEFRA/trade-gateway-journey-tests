@@ -14,6 +14,10 @@ Install the following:
 - [.NET 10 (SDK)](https://dotnet.microsoft.com/)
 - [Docker](https://docs.docker.com/engine/) (optional)
 
+### Environment variables
+
+Create `.env` file in the root of the project and provide necessary secrets (copy `.env.example`).
+
 ### Services
 
 See [trade-gateway-local-environment](https://github.com/DEFRA/trade-gateway-local-environment) for instructions.
@@ -25,7 +29,7 @@ See [trade-gateway-local-environment](https://github.com/DEFRA/trade-gateway-loc
 Build as follows:
 
 ```bash
-dotnet build
+docker build . -t trade-gateway-journey-tests --secret id=DEFRA_NUGET_PAT
 ```
 
 Run as follows:

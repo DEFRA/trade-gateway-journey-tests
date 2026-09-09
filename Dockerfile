@@ -5,7 +5,11 @@ WORKDIR /app
 COPY . .
 
 RUN dotnet tool restore
-RUN dotnet restore
+
+RUN --mount=type=secret,id=DEFRA_NUGET_PAT \
+  DEFRA_NUGET_PAT="$(cat /run/secrets/DEFRA_NUGET_PAT)" \
+  dotnet restore
+
 RUN dotnet csharpier check .
 
 FROM build AS publish
