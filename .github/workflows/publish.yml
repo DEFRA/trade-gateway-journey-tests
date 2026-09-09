@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DEFRA_NUGET_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Check out current repository
