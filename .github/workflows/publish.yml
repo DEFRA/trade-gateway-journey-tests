@@ -6,13 +6,14 @@ on:
       - main
 
 permissions:
+  contents: read
   id-token: write
-  contents: write
+  packages: read
   pull-requests: write
 
 env:
   AWS_REGION: eu-west-2
-  AWS_ACCOUNT_ID: "094954420758"
+  AWS_ACCOUNT_ID: '094954420758'
 
 jobs:
   build:
