@@ -23,15 +23,14 @@ jobs:
     name: Run pull request checks
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DEFRA_NUGET_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout current repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             10.0
@@ -43,10 +42,10 @@ jobs:
         run: dotnet csharpier check .
 
       - name: Log in to Docker Hub
-        uses: DEFRA/cdp-build-action/docker-login@main
+        uses: DEFRA/cdp-build-action/docker-login@dfb527d1bca7591fbbfd32ac007557745e888cf2 # v1.3.0
 
       - name: Checkout trade-gateway-local-environment
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: DEFRA/trade-gateway-local-environment
           ref: main
@@ -61,7 +60,7 @@ jobs:
 
       - name: Upload test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: reports
           path: ./reports
@@ -73,7 +72,7 @@ jobs:
 
       - name: Upload Docker Compose logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: docker-compose-logs
           path: trade-gateway-local-environment/logs.txt
