@@ -535,6 +535,10 @@ Rijksstraatweg 7
               Content: 222.0,
               UnitCode: KGM
             },
+            NetVolume: {
+              Content: 33,
+              UnitCode: H87
+            },
             PhysicalReferencedLogisticsPackage: [
               {
                 LevelCode: 4,
@@ -555,6 +559,10 @@ Rijksstraatweg 7
             GrossWeight: {
               Content: 100.0,
               UnitCode: KGM
+            },
+            NetVolume: {
+              Content: 33,
+              UnitCode: H87
             },
             ApplicableClassification: [
               {
