@@ -32,4 +32,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           build-secrets: |
-            DEFRA_NUGET_PAT: ${{ env.DEFRA_NUGET_PAT }}
+            DEFRA_NUGET_PAT=${{ env.DEFRA_NUGET_PAT }}
