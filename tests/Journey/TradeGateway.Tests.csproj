@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Defra.Trade.Gateway.Api.Client" Version="0.4.0" />
+    <PackageReference Include="Defra.Trade.TracesNtStub.TestKit" Version="0.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.12" />
     <PackageReference Include="Microsoft.Testing.Extensions.HtmlReport" Version="2.4.1" />

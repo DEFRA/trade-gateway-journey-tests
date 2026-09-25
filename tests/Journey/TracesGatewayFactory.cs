@@ -1,3 +1,4 @@
+using Api.TradeTracesNTStub.TestKit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Trade.Gateway.Api.Client.Clients;
@@ -33,7 +34,11 @@ public sealed class TracesGatewayFactory : IDisposable
             .WithLogging()
             .WithTracing(_ => Guid.NewGuid().ToString("N"));
         _serviceProvider = services.BuildServiceProvider();
+
+        Simulator = SimulatorControlClient.At(configuration["Simulator:BaseUrl"]!);
     }
+
+    public SimulatorControlClient Simulator { get; }
 
     public T GetRequiredService<T>()
         where T : notnull => _serviceProvider.GetRequiredService<T>();

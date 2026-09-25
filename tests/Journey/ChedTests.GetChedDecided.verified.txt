@@ -1,0 +1,299 @@
+﻿{
+  LastUpdated: DateTimeOffset_1,
+  Model: defra/certificate-internal/1,
+  Type: ched,
+  ExchangedDocument: {
+    Name: CHED-A - Common Health Entry Document for Animal,
+    Identifier: {ChedId},
+    DocumentTypeCode: 636,
+    DocumentStatusCode: 70,
+    IssueDateTime: DateTimeOffset_2,
+    Issuer: {
+      Identifier: XIBEL1-DAERA,
+      UrlId: https://traces-codelists.ec.europa.eu/authority_activity_id,
+      Name: Belfast Port BCP,
+      PartyRoleCode: {
+        Value: VJ,
+        UrlId: https://traces-codelists.ec.europa.eu/3035,
+        Name: Officer (Identification of Applicant)
+      },
+      PartyTypeCode: [
+        {
+          Value: AUTHORITY,
+          UrlId: https://traces-codelists.ec.europa.eu/user_body_role,
+          Name: Authority
+        }
+      ],
+      PostalAddress: {
+        PostcodeCode: BT1 1AA,
+        LineOne: Belfast Port BCP, Dock Road,
+        CityName: Belfast,
+        CountryId: XI,
+        CountryName: United Kingdom (Northern Ireland)
+      },
+      DefinedContact: [
+        {
+          PersonName: Simulator Inspector
+        }
+      ]
+    },
+    IncludedNote: [
+      {
+        Type: Note,
+        SubjectCode: {
+          Value: CHED_TYPE,
+          UrlId: ched_note_subject_code
+        },
+        Content: [
+          null
+        ],
+        ContentCode: [
+          {
+            Value: A,
+            UrlId: ched_type
+          }
+        ]
+      },
+      {
+        Type: Note,
+        SubjectCode: {
+          Value: LAST_UPDATE_DATETIME,
+          UrlId: ched_note_subject_code
+        },
+        Content: [
+          DateTimeOffset_1
+        ]
+      }
+    ],
+    ReferenceDocument: [
+      {
+        TypeCode: 636,
+        RelationshipTypeCode: CAW,
+        Identifier: {ChedId}
+      },
+      {
+        TypeCode: 636,
+        RelationshipTypeCode: ZZZ,
+        Identifier: SIMULATOR-SUPPORTING-DOC
+      }
+    ],
+    FirstSignatoryAuthentication: {
+      TypeCode: 4,
+      ActualDateTime: DateTimeOffset_3,
+      GovernmentActionTypeCode: Inspection (Identification of Applicant),
+      Provider: {
+        Identifier: XIBEL1-DAERA,
+        UrlId: https://traces-codelists.ec.europa.eu/authority_activity_id,
+        Name: Belfast Port BCP,
+        PartyRoleCode: {
+          Value: VJ,
+          UrlId: https://traces-codelists.ec.europa.eu/3035,
+          Name: Officer (Identification of Applicant)
+        },
+        PartyTypeCode: [
+          {
+            Value: AUTHORITY,
+            UrlId: https://traces-codelists.ec.europa.eu/user_body_role,
+            Name: Authority
+          }
+        ],
+        PostalAddress: {
+          PostcodeCode: BT1 1AA,
+          LineOne: Belfast Port BCP, Dock Road,
+          CityName: Belfast,
+          CountryId: XI,
+          CountryName: United Kingdom (Northern Ireland)
+        },
+        DefinedContact: [
+          {
+            PersonName: Simulator Inspector
+          }
+        ]
+      },
+      IncludedClause: [
+        {
+          Identifier: PURPOSE,
+          Content: FREE_CIRCULATION
+        },
+        {
+          Identifier: GOODS_CERTIFIED_AS,
+          Content: FATTENING
+        }
+      ]
+    },
+    SecondSignatoryAuthentication: {
+      TypeCode: 1,
+      ActualDateTime: DateTimeOffset_4,
+      GovernmentActionTypeCode: Clearance (Official inspector),
+      Provider: {
+        Identifier: XIBEL1-DAERA,
+        UrlId: https://traces-codelists.ec.europa.eu/authority_activity_id,
+        Name: Belfast Port BCP,
+        PartyRoleCode: {
+          Value: VJ,
+          UrlId: https://traces-codelists.ec.europa.eu/3035,
+          Name: Officer (Identification of Applicant)
+        },
+        PartyTypeCode: [
+          {
+            Value: AUTHORITY,
+            UrlId: https://traces-codelists.ec.europa.eu/user_body_role,
+            Name: Authority
+          }
+        ],
+        PostalAddress: {
+          PostcodeCode: BT1 1AA,
+          LineOne: Belfast Port BCP, Dock Road,
+          CityName: Belfast,
+          CountryId: XI,
+          CountryName: United Kingdom (Northern Ireland)
+        },
+        DefinedContact: [
+          {
+            PersonName: Simulator Inspector
+          }
+        ]
+      },
+      IncludedClause: [
+        {
+          Identifier: DECISION_CONCLUSION,
+          Content: ACCEPTABLE_FOR_FREE_CIRCULATION
+        },
+        {
+          Identifier: DOCUMENTARY_CHECK,
+          Content: YES
+        },
+        {
+          Identifier: DOCUMENTARY_CHECK_RESULT,
+          Content: SATISFACTORY
+        },
+        {
+          Identifier: IDENTITY_CHECK,
+          Content: YES
+        },
+        {
+          Identifier: IDENTITY_CHECK_RESULT,
+          Content: SATISFACTORY
+        },
+        {
+          Identifier: PHYSICAL_CHECK,
+          Content: YES
+        },
+        {
+          Identifier: PHYSICAL_CHECK_RESULT,
+          Content: SATISFACTORY
+        }
+      ]
+    }
+  },
+  SpecifiedConsignment: {
+    ConsignorParty: {
+      Identifier: 770198,
+      UrlId: https://traces-codelists.ec.europa.eu/operator_internal_activity_id,
+      Name: Simulator Exporters Ltd,
+      PartyRoleCode: {
+        Value: EX,
+        UrlId: https://traces-codelists.ec.europa.eu/3035,
+        Name: Exporter
+      },
+      PartyTypeCode: [
+        {
+          Value: ANIMAL_EXPORTER,
+          UrlId: https://traces-codelists.ec.europa.eu/operator_activity_type,
+          Name: Animal exporter
+        },
+        {
+          Value: EXP,
+          UrlId: https://traces-codelists.ec.europa.eu/classification_section_code,
+          Name: Animal exporter
+        }
+      ],
+      PostalAddress: {
+        CountryId: XI,
+        CountryName: United Kingdom (Northern Ireland)
+      }
+    },
+    ConsigneeParty: {
+      Identifier: 899361,
+      UrlId: https://traces-codelists.ec.europa.eu/operator_internal_activity_id,
+      Name: Simulator Trading Ltd,
+      PartyRoleCode: {
+        Value: CN,
+        UrlId: https://traces-codelists.ec.europa.eu/3035,
+        Name: Consignee (Importer)
+      },
+      PartyTypeCode: [
+        {
+          Value: IMPORTER,
+          UrlId: https://traces-codelists.ec.europa.eu/operator_activity_type,
+          Name: Importer
+        },
+        {
+          Value: OTH-OPER,
+          UrlId: https://traces-codelists.ec.europa.eu/classification_section_code,
+          Name: Other operators
+        }
+      ],
+      PostalAddress: {
+        CountryId: XI,
+        CountryName: United Kingdom (Northern Ireland)
+      }
+    },
+    ExportCountry: {
+      Code: {
+        Value: AF,
+        Name: Afghanistan
+      }
+    },
+    ImportCountry: {
+      Code: {
+        Value: XI,
+        Name: United Kingdom (Northern Ireland)
+      }
+    },
+    UnloadingBaseportLocation: {
+      Identifier: GBBEL,
+      UrlId: https://traces-codelists.ec.europa.eu/un_locode,
+      Name: County Down
+    },
+    IncludedConsignmentItem: [
+      {
+        NatureIdCargo: [
+          {
+            TypeCode: 12
+          }
+        ],
+        IncludedTradeLineItem: [
+          {
+            SequenceNumeric: 1,
+            NetWeight: {
+              Content: 900,
+              UnitCode: KGM
+            },
+            ApplicableClassification: [
+              {
+                SystemId: CN,
+                SystemName: CN Code (Combined Nomenclature),
+                ClassCode: {
+                  Value: 0101,
+                  UrlId: https://traces-codelists.ec.europa.eu/class_code_system/CN
+                },
+                ClassName: [
+                  LIVE ANIMALS,
+                  Live horses, asses, mules and hinnies
+                ]
+              }
+            ],
+            PhysicalReferencedLogisticsPackage: [
+              {
+                LevelCode: 4,
+                TypeCode: BX,
+                ItemQuantity: 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
