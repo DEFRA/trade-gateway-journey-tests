@@ -12,14 +12,15 @@ public sealed class TracesGatewayFactory : IDisposable
 
     public TracesGatewayFactory()
     {
-        Environment.SetEnvironmentVariable("AWS_ENDPOINT_URL", "http://localhost:4566");
-        Environment.SetEnvironmentVariable("AWS_ENDPOINT_URL_STS", "http://localhost:8080/local/sts");
-        Environment.SetEnvironmentVariable("AWS_EMF_ENVIRONMENT", "Local");
-        Environment.SetEnvironmentVariable("AWS_REGION", "eu-west-2");
-        Environment.SetEnvironmentVariable("AWS_DEFAULT_REGION", "eu-west-2");
-        Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", "test");
-        Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", "test");
-        Environment.SetEnvironmentVariable("USE_FLOCI", "true");
+        var env = Environment.GetEnvironmentVariable("ENVIRONMENT");
+        if (string.IsNullOrEmpty(env) || env.Equals("local", StringComparison.OrdinalIgnoreCase))
+        {
+            Environment.SetEnvironmentVariable("AWS_ENDPOINT_URL_STS", "http://localhost:8080/local/sts");
+            Environment.SetEnvironmentVariable("AWS_REGION", "eu-west-2");
+            Environment.SetEnvironmentVariable("AWS_DEFAULT_REGION", "eu-west-2");
+            Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", "test");
+            Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", "test");
+        }
 
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)

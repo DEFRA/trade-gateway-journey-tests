@@ -20,18 +20,16 @@ jobs:
     if: github.run_number != 1
     name: Build, version and publish
     runs-on: ubuntu-latest
+    env:
+      DEFRA_NUGET_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Check out current repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # Remove this step and update workflow when PR is merged: https://github.com/DEFRA/cdp-build-action/pull/120
-      - name: Update NuGet.config
-        run: |
-          dotnet nuget remove source defra
-          dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name defra "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --configfile NuGet.config
-
       - name: Build the test suite
-        uses: DEFRA/cdp-build-action/build-test@dfb527d1bca7591fbbfd32ac007557745e888cf2 # v1.3.0
+        uses: DEFRA/cdp-build-action/build-test@54ced5c5344c8b9620561a1628fe8f3d858e9871 # v1.5.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          build-secrets: |
+            DEFRA_NUGET_PAT=${{ env.DEFRA_NUGET_PAT }}

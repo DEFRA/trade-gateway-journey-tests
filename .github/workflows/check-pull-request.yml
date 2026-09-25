@@ -42,13 +42,13 @@ jobs:
         run: dotnet csharpier check .
 
       - name: Log in to Docker Hub
-        uses: DEFRA/cdp-build-action/docker-login@dfb527d1bca7591fbbfd32ac007557745e888cf2 # v1.3.0
+        uses: DEFRA/cdp-build-action/docker-login@54ced5c5344c8b9620561a1628fe8f3d858e9871 # v1.5.0
 
       - name: Checkout trade-gateway-local-environment
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: DEFRA/trade-gateway-local-environment
-          ref: main
+          ref: 0.1.0
           path: trade-gateway-local-environment
 
       - name: Start trade-gateway-local-environment
