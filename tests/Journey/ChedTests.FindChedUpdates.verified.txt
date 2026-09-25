@@ -1,0 +1,13 @@
+﻿{
+  Items: [
+    {
+      Id: {ChedId},
+      Origin: AF,
+      Created: DateTimeOffset_1,
+      Updated: DateTimeOffset_2
+    }
+  ],
+  Offset: 1,
+  PageSize: 10,
+  HasMore: false
+}
