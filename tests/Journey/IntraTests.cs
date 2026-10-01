@@ -13,7 +13,7 @@ public class IntraTests(TracesGatewayFactory factory)
     // Issued by the simulator and different each run; see ChedTests.
     private const string UnknownIntraId = "INTRA.XI.2026.9999999";
 
-    private static CertificateBuilder AnIntra() =>
+    private static CertificateBuilder AValidatedIntra() =>
         Intra
             .OfModel("64/432 (2016/2008) F1 Bovine")
             .WithStatus("VALIDATED")
@@ -35,12 +35,14 @@ public class IntraTests(TracesGatewayFactory factory)
     {
         var token = TestContext.Current.CancellationToken;
         await factory.Simulator.Reset(token);
-        var intraId = await factory.Simulator.CreateIntra(AnIntra(), token);
+        var intraId = await factory.Simulator.CreateIntra(AValidatedIntra(), token);
 
-        var response = await factory.TracesGatewayIntraClient.GetIntraCertification(intraId, token);
+        var intraResponse = await factory.TracesGatewayIntraClient.GetIntraCertification(intraId, token);
 
-        Assert.True(response.IsSuccessStatusCode, $"Response was not successful: {response.Error}");
-        await Verify(response.Content).AddScrubber(text => text.Replace(intraId, "{IntraId}"));
+        intraResponse
+            .IsSuccessStatusCode.Should()
+            .BeTrue($"the intraResponse should succeed: {intraResponse.ProblemBody()}");
+        await Verify(intraResponse.Content).AddScrubber(text => text.Replace(intraId, "{IntraId}"));
     }
 
     [Fact]
@@ -49,9 +51,9 @@ public class IntraTests(TracesGatewayFactory factory)
         var token = TestContext.Current.CancellationToken;
         await factory.Simulator.Reset(token);
 
-        var response = await factory.TracesGatewayIntraClient.GetIntraCertification(UnknownIntraId, token);
+        var intraResponse = await factory.TracesGatewayIntraClient.GetIntraCertification(UnknownIntraId, token);
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        intraResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -59,10 +61,10 @@ public class IntraTests(TracesGatewayFactory factory)
     {
         var token = TestContext.Current.CancellationToken;
         await factory.Simulator.Reset(token);
-        var intraId = await factory.Simulator.CreateIntra(AnIntra().NotAccessible(), token);
+        var intraId = await factory.Simulator.CreateIntra(AValidatedIntra().NotAccessible(), token);
 
-        var response = await factory.TracesGatewayIntraClient.GetIntraCertification(intraId, token);
+        var intraResponse = await factory.TracesGatewayIntraClient.GetIntraCertification(intraId, token);
 
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        intraResponse.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }
