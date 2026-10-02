@@ -18,7 +18,8 @@ public sealed class TracesGatewayFactory : IDisposable
             Environment.SetEnvironmentVariable("AWS_ENDPOINT_URL_STS", "http://localhost:8080/local/sts");
             Environment.SetEnvironmentVariable("AWS_REGION", "eu-west-2");
             Environment.SetEnvironmentVariable("AWS_DEFAULT_REGION", "eu-west-2");
-            Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", "test");
+            // Locally the access key names who the gateway's STS stand-in issues the token to.
+            Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", "trade-gateway-journey-tests");
             Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", "test");
         }
 
@@ -47,6 +48,7 @@ public sealed class TracesGatewayFactory : IDisposable
     public ITracesGatewayClient TracesGatewayClient => GetRequiredService<ITracesGatewayClient>();
     public IReferenceDataClient ReferenceDataClient => GetRequiredService<IReferenceDataClient>();
     public ITracesGatewayChedClient TracesGatewayChedClient => GetRequiredService<ITracesGatewayChedClient>();
+
     public ITracesGatewayIntraClient TracesGatewayIntraClient => GetRequiredService<ITracesGatewayIntraClient>();
 
     public void Dispose() => _serviceProvider.Dispose();

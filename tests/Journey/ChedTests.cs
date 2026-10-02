@@ -14,7 +14,7 @@ public class ChedTests(TracesGatewayFactory factory)
     // differs run to run. Tests use the ID the create returns and scrub it from snapshots.
     private const string UnknownChedId = "CHEDA.XI.2026.9999999";
 
-    private static CertificateBuilder AChedA() =>
+    private static CertificateBuilder ANewChedA() =>
         Ched.ChedA()
             .WithStatus("NEW")
             .WithDeclaration(declaration => declaration.Declaring("FREE_CIRCULATION", "FATTENING"))
@@ -36,12 +36,14 @@ public class ChedTests(TracesGatewayFactory factory)
     {
         var token = TestContext.Current.CancellationToken;
         await factory.Simulator.Reset(token);
-        var chedId = await factory.Simulator.CreateChed(AChedA(), token);
+        var chedId = await factory.Simulator.CreateChed(ANewChedA(), token);
 
-        var response = await factory.TracesGatewayChedClient.GetChedCertification(chedId, token);
+        var chedResponse = await factory.TracesGatewayChedClient.GetChedCertification(chedId, token);
 
-        Assert.True(response.IsSuccessStatusCode, $"Response was not successful: {response.Error}");
-        await Verify(response.Content).AddScrubber(text => text.Replace(chedId, "{ChedId}"));
+        chedResponse
+            .IsSuccessStatusCode.Should()
+            .BeTrue($"the chedResponse should succeed: {chedResponse.ProblemBody()}");
+        await Verify(chedResponse.Content).AddScrubber(text => text.Replace(chedId, "{ChedId}"));
     }
 
     [Fact]
@@ -49,17 +51,19 @@ public class ChedTests(TracesGatewayFactory factory)
     {
         var token = TestContext.Current.CancellationToken;
         await factory.Simulator.Reset(token);
-        var chedId = await factory.Simulator.CreateChed(AChedA(), token);
+        var chedId = await factory.Simulator.CreateChed(ANewChedA(), token);
         await factory.Simulator.PatchChed(
             chedId,
             Ched.ChedA().WithStatus("VALIDATED").WithClearance(clearance => clearance.Acceptable()),
             token
         );
 
-        var response = await factory.TracesGatewayChedClient.GetChedCertification(chedId, token);
+        var chedResponse = await factory.TracesGatewayChedClient.GetChedCertification(chedId, token);
 
-        Assert.True(response.IsSuccessStatusCode, $"Response was not successful: {response.Error}");
-        await Verify(response.Content).AddScrubber(text => text.Replace(chedId, "{ChedId}"));
+        chedResponse
+            .IsSuccessStatusCode.Should()
+            .BeTrue($"the chedResponse should succeed: {chedResponse.ProblemBody()}");
+        await Verify(chedResponse.Content).AddScrubber(text => text.Replace(chedId, "{ChedId}"));
     }
 
     [Fact]
@@ -68,9 +72,9 @@ public class ChedTests(TracesGatewayFactory factory)
         var token = TestContext.Current.CancellationToken;
         await factory.Simulator.Reset(token);
 
-        var response = await factory.TracesGatewayChedClient.GetChedCertification(UnknownChedId, token);
+        var chedResponse = await factory.TracesGatewayChedClient.GetChedCertification(UnknownChedId, token);
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        chedResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -78,11 +82,11 @@ public class ChedTests(TracesGatewayFactory factory)
     {
         var token = TestContext.Current.CancellationToken;
         await factory.Simulator.Reset(token);
-        var chedId = await factory.Simulator.CreateChed(AChedA().NotAccessible(), token);
+        var chedId = await factory.Simulator.CreateChed(ANewChedA().NotAccessible(), token);
 
-        var response = await factory.TracesGatewayChedClient.GetChedCertification(chedId, token);
+        var chedResponse = await factory.TracesGatewayChedClient.GetChedCertification(chedId, token);
 
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        chedResponse.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -93,10 +97,10 @@ public class ChedTests(TracesGatewayFactory factory)
 
         // The simulator stamps the update time as it stores, so a window around the create holds it.
         var from = DateTimeOffset.UtcNow.AddMinutes(-1);
-        var chedId = await factory.Simulator.CreateChed(AChedA(), token);
+        var chedId = await factory.Simulator.CreateChed(ANewChedA(), token);
         var to = DateTimeOffset.UtcNow.AddMinutes(1);
 
-        var response = await factory.TracesGatewayChedClient.FindChedUpdates(
+        var updatesResponse = await factory.TracesGatewayChedClient.FindChedUpdates(
             from,
             to,
             pageSize: 10,
@@ -104,7 +108,9 @@ public class ChedTests(TracesGatewayFactory factory)
             cancellationToken: token
         );
 
-        Assert.True(response.IsSuccessStatusCode, $"Response was not successful: {response.Error}");
-        await Verify(response.Content).AddScrubber(text => text.Replace(chedId, "{ChedId}"));
+        updatesResponse
+            .IsSuccessStatusCode.Should()
+            .BeTrue($"the updatesResponse should succeed: {updatesResponse.ProblemBody()}");
+        await Verify(updatesResponse.Content).AddScrubber(text => text.Replace(chedId, "{ChedId}"));
     }
 }
