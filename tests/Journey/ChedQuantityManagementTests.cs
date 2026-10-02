@@ -190,7 +190,7 @@ public class ChedQuantityManagementTests(TracesGatewayFactory factory)
         );
 
         reservationResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        reservationResponse.ProblemBody().Should().Contain("\"05\"", "05 is Quantities insufficient");
+        reservationResponse.ProblemReason().Should().Be("QuantitiesInsufficient");
         (await ReadLedger(chedId, token)).Available.Should().ContainSingle().Which.Quantity.Should().Be(100m);
     }
 
@@ -229,7 +229,7 @@ public class ChedQuantityManagementTests(TracesGatewayFactory factory)
         );
 
         replacementResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        replacementResponse.ProblemBody().Should().Contain("\"07\"", "07 is Line numbers mismatch");
+        replacementResponse.ProblemReason().Should().Be("LineNumbersMismatch");
         var ledgerAfterRefusal = await ReadLedger(chedId, token);
         ledgerAfterRefusal
             .Allocations!.Reserved.Should()
@@ -309,7 +309,7 @@ public class ChedQuantityManagementTests(TracesGatewayFactory factory)
         );
 
         replacementResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        replacementResponse.ProblemBody().Should().Contain("\"10\"", "10 is Measurement unit mismatch");
+        replacementResponse.ProblemReason().Should().Be("MeasurementUnitMismatch");
         var ledgerAfterRefusal = await ReadLedger(chedId, token);
         ledgerAfterRefusal.Allocations!.Reserved.Should().ContainSingle("a unit mismatch leaves the hold alone");
     }
@@ -328,7 +328,7 @@ public class ChedQuantityManagementTests(TracesGatewayFactory factory)
         );
 
         reservationResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        reservationResponse.ProblemBody().Should().Contain("\"04\"", "04 is Inappropriate status");
+        reservationResponse.ProblemReason().Should().Be("InappropriateStatus");
     }
 
     [Fact]
