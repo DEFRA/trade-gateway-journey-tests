@@ -32,6 +32,7 @@ permissions:
   contents: read
   id-token: write
   packages: read
+  pull-requests: write
 
 jobs:
   journey-tests:
@@ -90,7 +91,67 @@ jobs:
           docker compose up --wait --wait-timeout 300 --quiet-pull
 
       - name: Run journey tests
-        run: dotnet test --results-directory reports --report-html --report-html-filename index.html
+        run: >-
+          dotnet test --results-directory reports
+          --report-html --report-html-filename index.html
+          --report-xunit-markdown --report-xunit-markdown-filename summary.md
+          --report-xunit-ctrf --report-xunit-ctrf-filename results.json
+
+      - name: Publish test summary
+        if: always()
+        run: |
+          if [ -f reports/summary.md ]; then
+            cat reports/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No test results - the journey tests did not run." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # Keeps a single comment per pull request, found by the marker on its first line and
+      # replaced on each run. Fork and Dependabot pull requests get a read-only token, so a
+      # failure to comment doesn't fail the job.
+      - name: Comment test summary on pull request
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          marker='<!-- journey-tests-summary -->'
+          results=reports/results.json
+          comment="$RUNNER_TEMP/journey-tests-comment.md"
+          {
+            echo "$marker"
+            if [ -f "$results" ]; then
+              failed=$(jq '.results.summary.failed' "$results")
+              if [ "$failed" -eq 0 ]; then
+                echo "## ✅ Journey tests passed"
+              else
+                echo "## ❌ Journey tests failed"
+              fi
+              echo
+              echo "| Total | Passed | Failed | Skipped | Duration |"
+              echo "|---|---|---|---|---|"
+              jq -r '.results.summary | "| \(.tests) | \(.passed) | \(.failed) | \(.skipped + .pending + .other) | \(.duration / 1000 | floor)s |"' "$results"
+              if [ "$failed" -gt 0 ]; then
+                echo
+                echo "### Failed tests"
+                jq -r '.results.tests[] | select(.status == "failed") | "- `\(.name)`"' "$results"
+              fi
+            else
+              echo "## ⚠️ Journey tests did not run"
+            fi
+            echo
+            echo "[See the full report]($RUN_URL)"
+          } > "$comment"
+
+          comment_id=$(gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" | head -n 1)
+          if [ -n "$comment_id" ]; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$comment_id" -F body=@"$comment" > /dev/null
+          else
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$comment"
+          fi
 
       - name: Upload test report
         if: always()
