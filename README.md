@@ -64,6 +64,21 @@ docker run -it --rm --net=host \
 
 The test report is available from the `reports` S3 bucket. See [s3://reports](http://localhost:4566/reports/index.html) in your browser.
 
+### Service pull requests
+
+Service repositories can run the journey tests against an image built from a pull request by calling the reusable
+[journey-tests.yml](.github/workflows/journey-tests.yml) workflow. The calling job builds its image, uploads it as an
+artifact with `docker save`, and passes:
+
+| Input            | Description                                                                                      |
+|------------------|--------------------------------------------------------------------------------------------------|
+| `image-artifact` | Name of the artifact containing the `docker save` tarball                                        |
+| `image-variable` | Image tag variable in the trade-gateway-local-environment `compose.yml`, e.g. `TRADE_GATEWAY` |
+| `image-tag`      | Tag the image was saved with, e.g. `pr-123`                                                      |
+
+The image must be tagged with the same repository name that `compose.yml` uses, e.g. `defradigital/trade-gateway:pr-123`.
+The calling job must grant `contents: read`, `id-token: write` and `packages: read`.
+
 ## Linting and formatting
 
 [CSharpier](https://csharpier.com/) is used for linting and formatting.

@@ -19,8 +19,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  pr-validator:
-    name: Run pull request checks
+  check-formatting:
+    name: Check formatting
     runs-on: ubuntu-latest
     env:
       DEFRA_NUGET_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -41,38 +41,6 @@ jobs:
       - name: Check formatting
         run: dotnet csharpier check .
 
-      - name: Log in to Docker Hub
-        uses: DEFRA/cdp-build-action/docker-login@54ced5c5344c8b9620561a1628fe8f3d858e9871 # v1.5.0
-
-      - name: Checkout trade-gateway-local-environment
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: DEFRA/trade-gateway-local-environment
-          ref: 0.3.0
-          path: trade-gateway-local-environment
-
-      - name: Start trade-gateway-local-environment
-        working-directory: trade-gateway-local-environment
-        run: docker compose up --wait --wait-timeout 300 --quiet-pull
-
-      - name: Run journey tests
-        run: dotnet test --results-directory reports --report-html --report-html-filename index.html
-
-      - name: Upload test report
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: reports
-          path: ./reports
-
-      - name: Capture Docker Compose logs
-        if: always()
-        working-directory: trade-gateway-local-environment
-        run: docker compose logs > logs.txt
-
-      - name: Upload Docker Compose logs
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: docker-compose-logs
-          path: trade-gateway-local-environment/logs.txt
+  journey-tests:
+    name: Journey tests
+    uses: ./.github/workflows/journey-tests.yml
