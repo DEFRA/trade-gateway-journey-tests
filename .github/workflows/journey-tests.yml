@@ -1,0 +1,107 @@
+name: Journey tests
+
+# Reusable workflow that runs the journey tests against trade-gateway-local-environment.
+# Service repos call it from their pull request workflow, optionally swapping one service in
+# the compose stack for an image built from the pull request (see README.md).
+
+on:
+  workflow_call:
+    inputs:
+      image-artifact:
+        description: Name of an artifact, uploaded earlier in the calling run, containing a `docker save` tarball of the image under test
+        required: false
+        type: string
+        default: ''
+      image-variable:
+        description: Compose image tag variable for the service under test, e.g. TRADE_GATEWAY
+        required: false
+        type: string
+        default: ''
+      image-tag:
+        description: Tag of the image under test, e.g. pr-123
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write
+  packages: read
+
+jobs:
+  journey-tests:
+    name: Run journey tests
+    runs-on: ubuntu-latest
+    env:
+      DEFRA_NUGET_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      # A called workflow checks out the caller's repository by default, so name this one explicitly
+      # and use the commit the caller pinned the workflow to.
+      - name: Checkout journey tests
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: DEFRA/trade-gateway-journey-tests
+          ref: ${{ github.job_workflow_sha || github.sha }}
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: |
+            10.0
+
+      - name: Log in to Docker Hub
+        uses: DEFRA/cdp-build-action/docker-login@54ced5c5344c8b9620561a1628fe8f3d858e9871 # v1.5.0
+
+      - name: Download image under test
+        if: inputs.image-artifact != ''
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ inputs.image-artifact }}
+          path: image-under-test
+
+      - name: Load image under test
+        if: inputs.image-artifact != ''
+        run: docker load --input image-under-test/*.tar
+
+      - name: Checkout trade-gateway-local-environment
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: DEFRA/trade-gateway-local-environment
+          ref: 0.3.0
+          path: trade-gateway-local-environment
+
+      # The loaded image is already present locally, so compose uses it rather than pulling.
+      - name: Start trade-gateway-local-environment
+        working-directory: trade-gateway-local-environment
+        env:
+          IMAGE_VARIABLE: ${{ inputs.image-variable }}
+          IMAGE_TAG: ${{ inputs.image-tag }}
+        run: |
+          if [ -n "$IMAGE_VARIABLE" ]; then
+            export "$IMAGE_VARIABLE=$IMAGE_TAG"
+            echo "Using $IMAGE_VARIABLE=$IMAGE_TAG"
+          fi
+          docker compose up --wait --wait-timeout 300 --quiet-pull
+
+      - name: Run journey tests
+        run: dotnet test --results-directory reports --report-html --report-html-filename index.html
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: journey-test-reports
+          path: ./reports
+
+      - name: Capture Docker Compose logs
+        if: always()
+        working-directory: trade-gateway-local-environment
+        run: docker compose logs > logs.txt
+
+      - name: Upload Docker Compose logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: journey-test-docker-compose-logs
+          path: trade-gateway-local-environment/logs.txt
