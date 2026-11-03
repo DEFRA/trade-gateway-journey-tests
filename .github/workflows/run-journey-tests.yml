@@ -1,0 +1,110 @@
+name: Run journey tests
+
+# Runs the journey tests on demand against pull requests from one or more services, e.g. for a
+# feature split across services. Each service given a pull request number is built from that pull
+# request's head; the rest use their latest image.
+
+on:
+  workflow_dispatch:
+    inputs:
+      trade-gateway-pr:
+        description: trade-gateway pull request number (blank for latest)
+        required: false
+        type: string
+      trade-gateway-publisher-pr:
+        description: trade-gateway-publisher pull request number (blank for latest)
+        required: false
+        type: string
+      trade-tracesnt-stub-pr:
+        description: trade-tracesnt-stub pull request number (blank for latest)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  packages: read
+  pull-requests: write
+
+jobs:
+  select-images:
+    name: Select images
+    runs-on: ubuntu-latest
+    outputs:
+      builds: ${{ steps.select.outputs.builds }}
+      image-tags: ${{ steps.select.outputs.image-tags }}
+
+    steps:
+      - name: Select images to build
+        id: select
+        env:
+          TRADE_GATEWAY_PR: ${{ inputs.trade-gateway-pr }}
+          TRADE_GATEWAY_PUBLISHER_PR: ${{ inputs.trade-gateway-publisher-pr }}
+          TRADE_TRACESNT_STUB_PR: ${{ inputs.trade-tracesnt-stub-pr }}
+        run: |
+          builds='[]'
+          image_tags=''
+          add() {
+            local repository=$1 variable=$2 pr=$3
+            pr=$(echo "$pr" | tr -d '[:space:]#')
+            if [ -z "$pr" ]; then
+              return
+            fi
+            if ! [[ "$pr" =~ ^[0-9]+$ ]]; then
+              echo "::error::$repository pull request must be a number, got '$pr'"
+              exit 1
+            fi
+            builds=$(jq -c --arg repository "$repository" --arg pr "$pr" '. + [{repository: $repository, pr: $pr}]' <<< "$builds")
+            image_tags+="$variable=pr-$pr"$'\n'
+          }
+          add trade-gateway TRADE_GATEWAY "$TRADE_GATEWAY_PR"
+          add trade-gateway-publisher TRADE_GATEWAY_PUBLISHER "$TRADE_GATEWAY_PUBLISHER_PR"
+          add trade-tracesnt-stub TRADE_TRACESNT_STUB "$TRADE_TRACESNT_STUB_PR"
+          echo "builds=$builds" >> "$GITHUB_OUTPUT"
+          {
+            echo 'image-tags<<EOF'
+            printf '%s' "$image_tags"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+  build-images:
+    name: Build ${{ matrix.repository }} PR ${{ matrix.pr }}
+    needs: select-images
+    if: needs.select-images.outputs.builds != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.select-images.outputs.builds) }}
+
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: DEFRA/${{ matrix.repository }}
+          ref: refs/pull/${{ matrix.pr }}/head
+
+      # Tagged with the image name used by trade-gateway-local-environment so the journey tests pick it up
+      - name: Build image
+        env:
+          DEFRA_NUGET_PAT: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: defradigital/${{ matrix.repository }}:pr-${{ matrix.pr }}
+        run: |
+          docker build . --build-arg DEFRA_NUGET_PAT --tag "$IMAGE"
+          docker save "$IMAGE" -o "${{ matrix.repository }}.tar"
+
+      - name: Upload image
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: image-${{ matrix.repository }}
+          path: ${{ matrix.repository }}.tar
+          retention-days: 1
+
+  # Runs with latest images when no pull requests are given, so build-images is allowed to be skipped.
+  journey-tests:
+    name: Journey tests
+    needs: [select-images, build-images]
+    if: ${{ !cancelled() && needs.select-images.result == 'success' && needs.build-images.result != 'failure' }}
+    uses: ./.github/workflows/journey-tests.yml
+    with:
+      image-artifact: ${{ needs.select-images.outputs.builds != '[]' && 'image-*' || '' }}
+      image-tags: ${{ needs.select-images.outputs.image-tags }}
