@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: ''
+      journey-tests-ref:
+        description: Branch, tag or SHA of the journey tests to run, for callers in other repositories
+        required: false
+        type: string
+        default: main
 
 permissions:
   contents: read
@@ -36,13 +41,13 @@ jobs:
       DEFRA_NUGET_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      # A called workflow checks out the caller's repository by default, so name this one explicitly
-      # and use the commit the caller pinned the workflow to.
+      # A called workflow checks out the caller's repository by default, so name this one explicitly.
+      # github.sha is the caller's commit, so only use it when the caller is this repository.
       - name: Checkout journey tests
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: DEFRA/trade-gateway-journey-tests
-          ref: ${{ github.job_workflow_sha || github.sha }}
+          ref: ${{ github.repository == 'DEFRA/trade-gateway-journey-tests' && github.sha || inputs.journey-tests-ref }}
 
       - name: Set up .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0

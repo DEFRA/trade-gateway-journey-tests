@@ -75,6 +75,7 @@ artifact with `docker save`, and passes:
 | `image-artifact` | Name of the artifact containing the `docker save` tarball                                        |
 | `image-variable` | Image tag variable in the trade-gateway-local-environment `compose.yml`, e.g. `TRADE_GATEWAY` |
 | `image-tag`      | Tag the image was saved with, e.g. `pr-123`                                                      |
+| `journey-tests-ref` | Branch, tag or SHA of the journey tests to run (default `main`)                               |
 
 The image must be tagged with the same repository name that `compose.yml` uses, e.g. `defradigital/trade-gateway:pr-123`.
 The calling job must grant `contents: read`, `id-token: write` and `packages: read`.
