@@ -271,5 +271,6 @@ library.db
 .venv
 .env
 test-report/
+reports/
 
 **/appsettings.Development.json

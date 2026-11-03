@@ -5,7 +5,11 @@ WORKDIR /app
 COPY . .
 
 RUN dotnet tool restore
-RUN dotnet restore
+
+RUN --mount=type=secret,id=DEFRA_NUGET_PAT \
+  DEFRA_NUGET_PAT="$(cat /run/secrets/DEFRA_NUGET_PAT)" \
+  dotnet restore
+
 RUN dotnet csharpier check .
 
 FROM build AS publish
@@ -21,7 +25,13 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 COPY .config .config
 COPY scripts scripts
+COPY tests/Journey/*.verified.txt tests/Journey/
+COPY global.json global.json
 
+ENV HOME=/home/app
+ENV PATH="$PATH:/home/app/.dotnet/tools"
+RUN chown -R app:app /app
+USER app
 RUN dotnet tool restore
 
 ENTRYPOINT [ "./scripts/entrypoint.sh" ]
