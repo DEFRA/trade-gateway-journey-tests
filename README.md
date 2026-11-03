@@ -72,13 +72,23 @@ artifact with `docker save`, and passes:
 
 | Input            | Description                                                                                      |
 |------------------|--------------------------------------------------------------------------------------------------|
-| `image-artifact` | Name of the artifact containing the `docker save` tarball                                        |
+| `image-artifact` | Name or glob pattern of the artifacts containing the `docker save` tarballs                      |
 | `image-variable` | Image tag variable in the trade-gateway-local-environment `compose.yml`, e.g. `TRADE_GATEWAY` |
 | `image-tag`      | Tag the image was saved with, e.g. `pr-123`                                                      |
+| `image-tags`     | Further `VARIABLE=tag` lines, one per image, for swapping more than one service                  |
 | `journey-tests-ref` | Branch, tag or SHA of the journey tests to run (default `main`)                               |
 
 The image must be tagged with the same repository name that `compose.yml` uses, e.g. `defradigital/trade-gateway:pr-123`.
-The calling job must grant `contents: read`, `id-token: write` and `packages: read`.
+The calling job must grant `contents: read`, `id-token: write`, `packages: read` and `pull-requests: write`. The
+tests' results are posted as a comment on the pull request, which is updated on each run.
+
+### Pull requests across services
+
+To test a feature split across several services, run the **Run journey tests** workflow from the Actions tab
+(**Run workflow**) and enter the pull request number for each service involved. Each is built from its pull request's
+head, and services left blank use their latest image. The results are in the run's summary.
+
+trade-traces-poc is private, so it can't be built by this workflow and always uses its latest image.
 
 ## Linting and formatting
 

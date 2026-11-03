@@ -1,14 +1,19 @@
 name: Journey tests
 
 # Reusable workflow that runs the journey tests against trade-gateway-local-environment.
-# Service repos call it from their pull request workflow, optionally swapping one service in
-# the compose stack for an image built from the pull request (see README.md).
+# Service repos call it from their pull request workflow, and run-journey-tests.yml calls it on demand,
+# optionally swapping services in the compose stack for images built from pull requests (see README.md).
 
 on:
   workflow_call:
     inputs:
       image-artifact:
-        description: Name of an artifact, uploaded earlier in the calling run, containing a `docker save` tarball of the image under test
+        description: Name or glob pattern of artifacts, uploaded earlier in the calling run, each containing a `docker save` tarball of an image under test
+        required: false
+        type: string
+        default: ''
+      image-tags:
+        description: Compose image tag variables for the services under test, one VARIABLE=tag per line, e.g. TRADE_GATEWAY=pr-123
         required: false
         type: string
         default: ''
@@ -59,16 +64,20 @@ jobs:
       - name: Log in to Docker Hub
         uses: DEFRA/cdp-build-action/docker-login@54ced5c5344c8b9620561a1628fe8f3d858e9871 # v1.5.0
 
-      - name: Download image under test
+      - name: Download images under test
         if: inputs.image-artifact != ''
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: ${{ inputs.image-artifact }}
-          path: image-under-test
+          pattern: ${{ inputs.image-artifact }}
+          merge-multiple: true
+          path: images-under-test
 
-      - name: Load image under test
+      - name: Load images under test
         if: inputs.image-artifact != ''
-        run: docker load --input image-under-test/*.tar
+        run: |
+          for image in images-under-test/*.tar; do
+            docker load --input "$image"
+          done
 
       - name: Checkout trade-gateway-local-environment
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -77,17 +86,24 @@ jobs:
           ref: 0.5.0
           path: trade-gateway-local-environment
 
-      # The loaded image is already present locally, so compose uses it rather than pulling.
+      # The loaded images are already present locally, so compose uses them rather than pulling.
       - name: Start trade-gateway-local-environment
         working-directory: trade-gateway-local-environment
         env:
+          IMAGE_TAGS: ${{ inputs.image-tags }}
           IMAGE_VARIABLE: ${{ inputs.image-variable }}
           IMAGE_TAG: ${{ inputs.image-tag }}
         run: |
           if [ -n "$IMAGE_VARIABLE" ]; then
-            export "$IMAGE_VARIABLE=$IMAGE_TAG"
-            echo "Using $IMAGE_VARIABLE=$IMAGE_TAG"
+            IMAGE_TAGS="$IMAGE_TAGS"$'\n'"$IMAGE_VARIABLE=$IMAGE_TAG"
           fi
+          while IFS= read -r image_tag; do
+            if [ -n "$image_tag" ]; then
+              export "$image_tag"
+              echo "Using $image_tag"
+              echo "- \`$image_tag\`" >> "$RUNNER_TEMP/images-under-test.md"
+            fi
+          done <<< "$IMAGE_TAGS"
           docker compose up --wait --wait-timeout 300 --quiet-pull
 
       - name: Run journey tests
@@ -100,6 +116,13 @@ jobs:
       - name: Publish test summary
         if: always()
         run: |
+          if [ -f "$RUNNER_TEMP/images-under-test.md" ]; then
+            {
+              echo "### Images under test"
+              cat "$RUNNER_TEMP/images-under-test.md"
+              echo
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
           if [ -f reports/summary.md ]; then
             cat reports/summary.md >> "$GITHUB_STEP_SUMMARY"
           else
