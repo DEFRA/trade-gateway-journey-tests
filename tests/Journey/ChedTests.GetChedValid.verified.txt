@@ -8,6 +8,7 @@
     DocumentTypeCode: 636,
     DocumentStatusCode: 1,
     IssueDateTime: DateTimeOffset_2,
+    RevisionDateTime: DateTimeOffset_1,
     Issuer: {
       Identifier: XIBEL1-DAERA,
       UrlId: https://traces-codelists.ec.europa.eu/authority_activity_id,
@@ -68,11 +69,13 @@
     ReferenceDocument: [
       {
         TypeCode: 636,
+        UrlId: https://traces-codelists.ec.europa.eu/1001,
         RelationshipTypeCode: CAW,
         Identifier: {ChedId}
       },
       {
         TypeCode: 636,
+        UrlId: https://traces-codelists.ec.europa.eu/1001,
         RelationshipTypeCode: ZZZ,
         Identifier: SIMULATOR-SUPPORTING-DOC
       }
@@ -205,6 +208,12 @@
             NetWeight: {
               Content: 900,
               UnitCode: KGM
+            },
+            OriginCountry: {
+              Code: {
+                Value: AF,
+                Name: Afghanistan
+              }
             },
             ApplicableClassification: [
               {
