@@ -7,6 +7,7 @@
     DocumentTypeCode: 856,
     DocumentStatusCode: 70,
     IssueDateTime: DateTimeOffset_1,
+    RevisionDateTime: DateTimeOffset_2,
     IncludedNote: [
       {
         Type: Note,
@@ -22,6 +23,7 @@
     ReferenceDocument: [
       {
         TypeCode: 856,
+        UrlId: https://traces-codelists.ec.europa.eu/1001,
         RelationshipTypeCode: CAW,
         Identifier: {IntraId}
       }
@@ -131,6 +133,12 @@
             NetWeight: {
               Content: 900,
               UnitCode: KGM
+            },
+            OriginCountry: {
+              Code: {
+                Value: AF,
+                Name: Afghanistan
+              }
             },
             ApplicableClassification: [
               {
