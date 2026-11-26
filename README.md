@@ -32,6 +32,8 @@ Build as follows:
 dotnet build
 ```
 
+Ensure that the trade-traces-stub project is running on port 3000
+
 Run as follows:
 
 ```bash
